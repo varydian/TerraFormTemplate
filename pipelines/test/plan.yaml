@@ -1,0 +1,23 @@
+trigger: none
+
+variables:
+  - group: TerraformMicrosoftPartnerSubscription
+  - group: BaseTemplate-test
+
+pool:
+  vmImage: 'ubuntu 16.04'
+
+jobs:
+  - job: TerraformPlan
+    displayName: Terraform Plan
+    variables:
+      CommitHash: $[coalesce(variables['System.PullRequest.SourceCommitId'], variables['Build.SourceVersion'])]
+    steps:
+    - template: ../azure.yaml
+      parameters:
+        command: 'plan'
+        commandOptions: '$(commandOptions) -out=./$(CommitHash).tfplan'
+    - publish: '$(workingDirectory)/$(CommitHash).tfplan'
+      artifact: Plan
+      name: TerraformPublish
+      displayName: Publish Terraform Plan

@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - master
+
+variables:
+  - group: TerraformMicrosoftPartnerSubscription
+  - group: BaseTemplate-test
+
+pool:
+  vmImage: 'ubuntu 16.04'
+
+jobs:
+  - job: TerraformApply
+    displayName: Terraform Apply
+    steps:
+    - task: DownloadPipelineArtifact@2
+      name: DownloadPlan
+      displayName: Download Plan
+      inputs:
+        source: 'specific'
+        project: Terraform
+        pipeline: 9 # BaseTemplate/Test/Plan
+        artifact: Plan
+        path: '$(Pipeline.Workspace)'
+    - template: ../azure.yaml
+      parameters:
+        command: 'apply'
+        commandOptions: '$(Pipeline.Workspace)/$(Build.SourceVersion).tfplan'

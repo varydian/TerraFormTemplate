@@ -1,0 +1,25 @@
+trigger: none
+
+schedules:
+  - cron: "0 19 * * *"
+    displayName: "End of Day Infrastructure Takedown"
+    branches:
+      include:
+        - master
+    always: true
+
+variables:
+  - group: TerraformMicrosoftPartnerSubscription
+  - group: BaseTemplate-test
+
+pool:
+  vmImage: 'ubuntu 16.04'
+
+jobs:
+  - job: TerraformDestroy
+    displayName: Terraform Destroy
+    steps:
+    - template: ../azure.yaml
+      parameters:
+        command: 'destroy'
+        commandOptions: $(commandOptions)
